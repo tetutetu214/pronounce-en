@@ -13,8 +13,8 @@
 
 ## Phase 0 タスク (基盤・認証・データ・語彙)
 
-- [ ] GitHub リポジトリ作成 (パブリック、Secret Scanning + Push Protection 有効化)
-- [ ] ルートディレクトリ整備 (.gitignore, .env.example, README.md)
+- [x] (2026-05-31) GitHub リポジトリ作成 (`tetutetu214/pronounce-en` パブリック、Secret Scanning + Push Protection 有効化)
+- [x] (2026-05-31) ルートディレクトリ整備 (.gitignore, README.md) — `.env.example` は Phase 0 後半で追加
 - [ ] `frontend/` で Next.js (App Router) + TypeScript プロジェクト初期化
 - [ ] `infra/` で CDK プロジェクト初期化 (TypeScript)
 - [ ] `backend/` で Python 3.12 Lambda の雛形を用意 (uv または rye で依存管理)
@@ -46,3 +46,8 @@ plan.md 承認後に詳細化。
 - [x] (2026-05-28) プロジェクトディレクトリ `/home/tetutetu/projects/pronounce-en/` 作成
 - [x] (2026-05-28) docs/ 配下に4ファイル + プロジェクト CLAUDE.md + .gitignore 作成
 - [x] (2026-05-28) plan.md 初版作成
+- [x] (2026-05-28) spec.md 初版作成 (Phase 0 詳細・Phase 1〜3 概略)
+- [x] (2026-05-28) 理解度テスト全3問正解 (Azure 併用 / Cognito Identity Pool / Single Table)
+- [x] (2026-05-31) README.md 作成
+- [x] (2026-05-31) git init + 初回コミット (`e7ff9e9`)
+- [x] (2026-05-31) GitHub リポジトリ `tetutetu214/pronounce-en` 作成 + push + Secret Scanning + Push Protection 有効化
