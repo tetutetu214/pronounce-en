@@ -15,7 +15,7 @@
 
 - [x] (2026-05-31) GitHub リポジトリ作成 (`tetutetu214/pronounce-en` パブリック、Secret Scanning + Push Protection 有効化)
 - [x] (2026-05-31) ルートディレクトリ整備 (.gitignore, README.md) — `.env.example` は Phase 0 後半で追加
-- [ ] `frontend/` で Next.js (App Router) + TypeScript プロジェクト初期化
+- [x] (2026-06-03) `frontend/` で Next.js (App Router) + TypeScript プロジェクト初期化 (PR #1, commit `275d682`)
 - [ ] `infra/` で CDK プロジェクト初期化 (TypeScript)
 - [ ] `backend/` で Python 3.12 Lambda の雛形を用意 (uv または rye で依存管理)
 - [ ] DynamoDB Single Table を CDK で定義 (要件定義書 §12 のキー設計)
@@ -51,3 +51,5 @@ plan.md 承認後に詳細化。
 - [x] (2026-05-31) README.md 作成
 - [x] (2026-05-31) git init + 初回コミット (`e7ff9e9`)
 - [x] (2026-05-31) GitHub リポジトリ `tetutetu214/pronounce-en` 作成 + push + Secret Scanning + Push Protection 有効化
+- [x] (2026-06-03) リポジトリ設定で `delete_branch_on_merge=true` を有効化
+- [x] (2026-06-03) Next.js 16.2.6 + TypeScript + Tailwind v4 + Turbopack + pnpm 11 で `frontend/` 初期化 (PR #1 squash merge `275d682`)
