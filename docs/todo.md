@@ -2,13 +2,17 @@
 
 ## 現在のフェーズ
 
-**Phase -1 (計画フェーズ)** — plan.md 承認済み・理解度テスト完了。spec.md 起草中。
+**Phase -1 (計画フェーズ)** — plan.md 承認済み・理解度テスト完了。requirements.md v2.0 起草完了 (てつてつレビュー待ち)。spec.md 起草中。
 
 ## 直近の TODO
 
 - [x] plan.md をてつてつに確認してもらう (2026-05-28 承認)
 - [x] 新規技術スタック導入の理解度テストを実施 (2026-05-28 全3問正解、knowledge.md 学習済み概念に追記)
-- [ ] spec.md の章を埋める (Phase 0 のスコープを優先して詳細化、Phase 1〜3 は概略)
+- [x] (2026-06-13) **要件定義書を再作成** — v1.0 がファイル消失していたため、plan/spec/knowledge + 一次ソース再検証 (2026-06-13) で `docs/requirements.md` v2.0 を起草。§12 DynamoDB キー設計はアクセスパターンから再設計 (要承認 Q-2)。自己レビューで通知バッチの GSI2 不足を発見・修正
+- [ ] **requirements.md v2.0 をてつてつがレビュー・承認** (特に §12 キー設計 Q-2)
+- [ ] plan.md に requirements.md への相互リンクを追記 (Bash 復旧後)
+- [ ] requirements.md を commit + push (docs 系なので main 直接可、Bash 復旧後)
+- [ ] spec.md の章を埋める (requirements.md 承認後、Phase 0 スコープ優先で詳細化)
 - [ ] spec.md がてつてつ承認されたら Phase 0 の実装着手 (下記タスクへ)
 
 ## Phase 0 タスク (基盤・認証・データ・語彙)
