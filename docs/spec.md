@@ -77,24 +77,28 @@ API Gateway は REST API を採用。Phase 0 では3つのみ。
 
 LINE Channel ID / Channel Secret / Developer Provider Name (`login.pronounce-en.line`) は `~/.secrets/pronounce-en.env` で管理し、Lambda には Parameter Store SecureString 経由で渡します。CDK では `StringParameter.fromSecureStringParameterAttributes` を使い、Lambda 環境変数には ARN だけ渡して実行時に取得します。
 
-### 0-5. DynamoDB スキーマ (Phase 0 範囲)
+### 0-5. DynamoDB スキーマ (Phase 0 範囲・requirements v2.0 §12 準拠)
 
-Single Table。テーブル名は `pronounce-en-main` (CDK で stack 名を prefix)。
+Single Table。テーブル名は `pronounce-en` (CDK で stack/環境名を prefix)。**キー命名は requirements.md v2.0 §12 を正とする** (2026-06-13 にてつてつ承認・Q-2 クローズ)。`uid` は LINE userId そのものではなく、Cognito Identity Pool が払い出す `IdentityId` (例: `us-east-1:xxxx-xxxx-xxxx`) を使う。これによりユーザー削除や Identity Pool 再作成時に LINE 側へ依存せず済む。
 
 | PK | SK | 主属性 | Phase 0 で使うか |
 |---|---|---|---|
-| `USER#<uid>` | `PROFILE` | `lineUserId`, `displayName`, `pictureUrl`, `createdAt`, `lastLoginAt` | ◯ |
-| `WORD#<wordId>` | `META` | `text`, `ipa`, `cefrjLevel`, `definition`, `examples` (Phase 0 では空でも可), `voices` (Phase 1 で追加) | ◯ |
-| `USER#<uid>` | `PROGRESS#<wordId>` | `status`, `pronScore`, `lastStudied` | Phase 1 から |
-| `USER#<uid>` | `SM2#<wordId>` | `EF`, `repetitions`, `interval`, `nextReviewAt` | Phase 1 から |
-| `USER#<uid>` | `PHONEME#<ipa>` | `failCount`, `weight` | Phase 1 から |
-| `USER#<uid>` | `GOAL#<goalId>` | `title`, `smartFields`, `start/endDate`, `progressPct` | Phase 1 から |
-| `USER#<uid>` | `WEEKPLAN#<isoWeek>` | `tasksByDay`, `generatedBy`, `modelId` | Phase 1〜2 |
-| `USER#<uid>` | `EXPLAIN#<wordId>#<ts>` | `inputType`, `transcript`, `llmScores`, `guardrailFlag` | Phase 2 から |
-| `USER#<uid>` | `BADGE#<key>` | `earnedAt`, `criteria` | Phase 1 から |
-| `USER#<uid>` | `REFLECT#<isoWeek>` | `selfEvalScore`, `attribution`, `nextWeekIntent` | Phase 3 から |
+| `USER#<uid>` | `PROFILE` | `lineUserId`, `displayName`, `pictureUrl`, `createdAt`, `lastLoginAt`, `streak` | ◯ |
+| `WORD#<wordId>` | `META` | `headword`, `ipa`, `cefr`, `ngslRank`, `exampleSentence` (Phase 0 では空可) | ◯ |
+| `USER#<uid>` | `RECORD#<ISO8601>#<recordId>` | `wordId`, `scores`(json), `type` | Phase 1 から |
+| `USER#<uid>` | `ASSESS#<wordId>#<ISO8601>` | `phonemeScores`, `prosody`, `audioS3Key` | Phase 1 から |
+| `USER#<uid>` | `SRS#<dueDate>#<wordId>` | `interval`, `ef`, `repetition` (SM-2) | Phase 1 から |
 
-GSI は Phase 0 では作成しません。Phase 1 で SM-2 の due 抽出に必要になったタイミングで `GSI1` (PK: `nextReviewBucket`, SK: `nextReviewAt`) を追加します。`uid` は LINE userId そのものではなく、Cognito Identity Pool が払い出す `IdentityId` (例: `us-east-1:xxxx-xxxx-xxxx`) を使います。これによりユーザー削除や Identity Pool の再作成時に LINE 側に依存せず済みます。
+> Phase 1〜3 で増えるエンティティ (目標・週次プラン・説明アウトプット・バッジ・振り返り等) は、各 Phase 着手時に requirements §12 のアクセスパターンと突き合わせて SK を確定し本表へ追補する。旧 spec の暫定命名 (`PROGRESS#`/`SM2#`/`PHONEME#`/`GOAL#` 等) は §12 の正規命名 (`RECORD#`/`ASSESS#`/`SRS#`) に統合した。
+
+**GSI (requirements §12.3 準拠)**
+
+| GSI | PK | SK | 解決する AP | 作成 Phase |
+|---|---|---|---|---|
+| GSI1 (CEFR別語彙) | `CEFR#<level>` | `WORD#<wordId>` | AP-6 レベル別出題 | **Phase 0** |
+| GSI2 (全ユーザー横断 due 抽出) | `DUE#<dueDate>` | `USER#<uid>#<wordId>` | AP-4' 通知バッチ | Phase 1 |
+
+GSI1 は **Phase 0 で作成する**。語彙 seed 時に CEFR レベル別取得 (AP-6) まで動作確認するため (requirements FR-13.1 / FR-14.3)。GSI2 は復習スケジュール (SRS) が Phase 1 機能のため Phase 1 で追加する。GSI2 の `DUE#<同一日付>` はホットパーティション化しうるが MVP 規模では許容し、公開時に `DUE#<date>#<shard>` へシャード分割する (Q-6)。
 
 ### 0-6. CDK Stack 構成 (Phase 0)
 
@@ -103,6 +107,7 @@ Phase 0 では1スタックでまとめて作ります。
 ```
 infra/lib/pronounce-en-stack.ts
 ├─ DynamoDB Table (Single Table, on-demand)
+│  └─ GSI1 (PK: CEFR#<level>, SK: WORD#<wordId>)  ※AP-6 レベル別出題用
 ├─ Cognito Identity Pool
 │  ├─ AuthenticatedRole (DynamoDB に自分の USER#<id> 配下だけアクセスできる IAM ポリシー)
 │  └─ Developer Provider 設定 (login.pronounce-en.line)
@@ -172,6 +177,8 @@ data/
 ```
 
 definition と examples は Phase 0 では null / 空でよく、Phase 2 着手時に充足します。
+
+seed 投入後、**GSI1 経由で CEFR レベル別に語彙が引ける (AP-6) ことを Phase 0 完了要素として確認**します (requirements FR-14.3 の AC「seed スクリプトで `WORD#` レコードが投入され AP-5/AP-6 が動く」に対応)。各 `WORD#` レコードには GSI1 用に `CEFR#<level>` を PK 属性として持たせます。
 
 ### 0-9. Phase 0 のテスト方針
 

@@ -12,8 +12,8 @@
 - [x] (2026-06-13) **requirements.md v2.0 をてつてつがレビュー・承認** — §12 キー設計の理解度テスト全3問正解、Q-2 クローズ。knowledge.md 学習済み概念に追記
 - [x] (2026-06-13) plan.md に requirements.md への相互リンクを追記 (v1.0 消失の注記も追加)
 - [x] (2026-06-13) requirements.md を commit + push (`b511c6b`、origin/main 同期済み)
-- [ ] spec.md の章を埋める (Phase 0 スコープ優先で詳細化) ← **次はここ**
-- [ ] spec.md がてつてつ承認されたら Phase 0 の実装着手 (下記タスクへ)
+- [x] (2026-06-13) spec.md Phase 0 詳細は既に記述済みと判明。requirements v2.0 §12 との不整合 (SK命名・GSI設計・GSI1作成時期) を整合 — SK を RECORD/ASSESS/SRS に統合、GSI を GSI1(CEFR)/GSI2(DUE) に置換、GSI1 は Phase 0 作成に決定 (てつてつ承認)
+- [ ] spec.md 全体をてつてつが最終確認 → OK なら Phase 0 実装着手 ← **次はここ**
 
 ## Phase 0 タスク (基盤・認証・データ・語彙)
 
